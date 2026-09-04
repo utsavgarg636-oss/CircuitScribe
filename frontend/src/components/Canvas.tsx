@@ -18,6 +18,8 @@ import {
   ArrowRightCircle,
   Sparkles,
   Layers,
+  ZoomIn,
+  ZoomOut,
 } from "lucide-react";
 import { useGraphStore, AppNode } from "@/store/graphStore";
 import { nodeTypes } from "./CustomNodes";
@@ -37,19 +39,28 @@ function FlowCanvas() {
     isAutoFixing,
   } = useGraphStore();
 
-  const { fitView } = useReactFlow();
+  const { fitView, zoomIn, zoomOut } = useReactFlow();
 
   const handleFitView = useCallback(() => {
     setTimeout(() => {
       fitView({ padding: 0.25, duration: 400 });
-    }, 50);
+    }, 60);
   }, [fitView]);
 
-  const handleToggleLayout = () => {
+  const handleToggleLayout = useCallback(() => {
     const newDir = layoutDirection === "TB" ? "LR" : "TB";
     setLayoutDirection(newDir);
-    setTimeout(() => fitView({ padding: 0.25, duration: 400 }), 50);
-  };
+    setTimeout(() => {
+      fitView({ padding: 0.25, duration: 400 });
+    }, 80);
+  }, [layoutDirection, setLayoutDirection, fitView]);
+
+  const handleAutoLayout = useCallback(() => {
+    runDagreLayout(layoutDirection);
+    setTimeout(() => {
+      fitView({ padding: 0.25, duration: 400 });
+    }, 80);
+  }, [runDagreLayout, layoutDirection, fitView]);
 
   useEffect(() => {
     if (nodes.length > 0) {
@@ -58,47 +69,67 @@ function FlowCanvas() {
   }, [nodes.length, handleFitView]);
 
   return (
-    <div className="relative w-full h-full bg-[#080c14] overflow-hidden">
-      {/* Top Floating Control Bar */}
-      <div className="absolute top-4 left-4 z-20 flex items-center gap-2 px-3 py-2 rounded-xl glass-panel shadow-2xl">
+    <div className="relative w-full h-full bg-[#080c14] overflow-hidden select-none">
+      {/* Top Floating Control Bar - High Z-index and clear pointer-events */}
+      <div className="absolute top-4 left-6 z-30 flex items-center gap-2 px-3 py-2 rounded-xl glass-panel shadow-2xl pointer-events-auto border border-slate-700/80">
         <button
+          type="button"
           onClick={handleToggleLayout}
-          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 text-xs font-medium text-slate-200 border border-slate-700/50 transition-all hover:scale-105"
-          title={`Switch to ${layoutDirection === "TB" ? "Horizontal (LR)" : "Vertical (TB)"} layout`}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800/90 hover:bg-slate-700 text-xs font-semibold text-slate-100 border border-slate-700/60 shadow-sm transition-all hover:scale-105 active:scale-95 cursor-pointer"
+          title={`Switch layout to ${layoutDirection === "TB" ? "Horizontal (LR)" : "Vertical (TB)"}`}
         >
           {layoutDirection === "TB" ? (
             <>
-              <ArrowDownCircle className="w-3.5 h-3.5 text-sky-400" />
+              <ArrowDownCircle className="w-4 h-4 text-sky-400" />
               <span>Vertical (TB)</span>
             </>
           ) : (
             <>
-              <ArrowRightCircle className="w-3.5 h-3.5 text-indigo-400" />
+              <ArrowRightCircle className="w-4 h-4 text-indigo-400" />
               <span>Horizontal (LR)</span>
             </>
           )}
         </button>
 
         <button
-          onClick={() => {
-            runDagreLayout();
-            handleFitView();
-          }}
-          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 text-xs font-medium text-slate-200 border border-slate-700/50 transition-all hover:scale-105"
-          title="Auto-organize graph layout"
+          type="button"
+          onClick={handleAutoLayout}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800/90 hover:bg-slate-700 text-xs font-semibold text-slate-100 border border-slate-700/60 shadow-sm transition-all hover:scale-105 active:scale-95 cursor-pointer"
+          title="Auto-organize graph with Dagre"
         >
-          <RefreshCw className="w-3.5 h-3.5 text-emerald-400" />
+          <RefreshCw className="w-4 h-4 text-emerald-400" />
           <span>Auto-Layout</span>
         </button>
 
         <button
+          type="button"
           onClick={handleFitView}
-          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 text-xs font-medium text-slate-200 border border-slate-700/50 transition-all hover:scale-105"
-          title="Zoom to fit diagram"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800/90 hover:bg-slate-700 text-xs font-semibold text-slate-100 border border-slate-700/60 shadow-sm transition-all hover:scale-105 active:scale-95 cursor-pointer"
+          title="Zoom to fit entire diagram"
         >
-          <Maximize2 className="w-3.5 h-3.5 text-amber-400" />
+          <Maximize2 className="w-4 h-4 text-amber-400" />
           <span>Fit View</span>
         </button>
+
+        {/* Quick Zoom Buttons */}
+        <div className="flex items-center gap-1 pl-1.5 border-l border-slate-700/60">
+          <button
+            type="button"
+            onClick={() => zoomIn({ duration: 300 })}
+            className="p-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors cursor-pointer"
+            title="Zoom in"
+          >
+            <ZoomIn className="w-3.5 h-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => zoomOut({ duration: 300 })}
+            className="p-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors cursor-pointer"
+            title="Zoom out"
+          >
+            <ZoomOut className="w-3.5 h-3.5" />
+          </button>
+        </div>
 
         {/* Status Indicators */}
         {(isParsing || isLinting || isAutoFixing) && (
@@ -109,10 +140,10 @@ function FlowCanvas() {
             </span>
             <span>
               {isParsing
-                ? "Synthesizing Topology..."
+                ? "Synthesizing..."
                 : isAutoFixing
-                ? "Applying 1-Click Fix..."
-                : "Auditing NetworkX Rules..."}
+                ? "Auto-Fixing..."
+                : "Auditing..."}
             </span>
           </div>
         )}
@@ -127,8 +158,8 @@ function FlowCanvas() {
         onConnect={onConnect}
         nodeTypes={nodeTypes}
         fitView
-        minZoom={0.2}
-        maxZoom={2}
+        minZoom={0.1}
+        maxZoom={2.5}
         defaultEdgeOptions={{
           type: "smoothstep",
           animated: false,

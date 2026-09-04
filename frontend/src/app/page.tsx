@@ -104,37 +104,46 @@ export default function WorkspacePage() {
         </div>
       </header>
 
-      {/* Main Workspace Body */}
-      <div className="flex-1 flex overflow-hidden relative">
-        {/* Left Sidebar: Ingestion & Presets */}
-        <div
-          className={`relative transition-all duration-300 ease-in-out border-r border-slate-800/80 bg-slate-950/50 flex flex-col z-20 ${
-            isLeftPanelOpen ? "w-80 sm:w-96" : "w-0 overflow-hidden border-none"
-          }`}
-        >
-          <div className="flex-1 overflow-y-auto p-3.5 space-y-4">
-            <VoiceInput />
+        {/* Main Workspace Body */}
+        <div className="flex-1 flex overflow-hidden relative">
+          {/* Left Sidebar: Ingestion & Presets */}
+          <div
+            className={`relative transition-all duration-300 ease-in-out border-r border-slate-800/80 bg-slate-950/70 flex flex-col z-20 shrink-0 ${
+              isLeftPanelOpen ? "w-80 sm:w-96" : "w-0 overflow-hidden border-none"
+            }`}
+          >
+            <div className="flex-1 overflow-y-auto p-3.5 space-y-4">
+              <div className="flex items-center justify-between pb-1">
+                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                  Panel Controls
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setIsLeftPanelOpen(false)}
+                  className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/80 transition-colors"
+                  title="Collapse sidebar"
+                >
+                  <PanelLeftClose className="w-4 h-4" />
+                </button>
+              </div>
+              <VoiceInput />
+            </div>
           </div>
-        </div>
 
-        {/* Toggle Left Sidebar Button */}
-        <button
-          onClick={() => setIsLeftPanelOpen(!isLeftPanelOpen)}
-          className="absolute top-4 left-2 z-30 p-2 rounded-xl glass-panel text-slate-300 hover:text-white hover:bg-slate-800/80 transition-all shadow-xl"
-          title={isLeftPanelOpen ? "Collapse sidebar" : "Open sidebar"}
-          style={{ left: isLeftPanelOpen ? "calc(24rem + 8px)" : "12px" }}
-        >
-          {isLeftPanelOpen ? (
-            <PanelLeftClose className="w-4 h-4" />
-          ) : (
-            <PanelLeftOpen className="w-4 h-4" />
-          )}
-        </button>
-
-        {/* Central Main Canvas */}
-        <div className="flex-1 h-full relative">
-          <Canvas />
-        </div>
+          {/* Central Main Canvas */}
+          <div className="flex-1 h-full relative">
+            {!isLeftPanelOpen && (
+              <button
+                type="button"
+                onClick={() => setIsLeftPanelOpen(true)}
+                className="absolute top-4 left-4 z-40 p-2.5 rounded-xl glass-panel text-slate-300 hover:text-white hover:bg-slate-800 transition-all shadow-2xl border border-slate-700 hover:scale-105"
+                title="Open ingestion sidebar"
+              >
+                <PanelLeftOpen className="w-4 h-4 text-sky-400" />
+              </button>
+            )}
+            <Canvas />
+          </div>
 
         {/* Right Sidebar: Linter & 1-Click Auto-Fixes */}
         {isLinterOpen && (

@@ -101,20 +101,19 @@ function calculateDagreLayout(
 
   dagre.layout(dagreGraph);
 
-  const layoutedNodes = nodes.map((node) => {
+  const layoutedNodes: AppNode[] = nodes.map((node) => {
     const nodeWithPosition = dagreGraph.node(node.id);
+    const x = nodeWithPosition ? Math.round(nodeWithPosition.x - nodeWidth / 2) : node.position.x;
+    const y = nodeWithPosition ? Math.round(nodeWithPosition.y - nodeHeight / 2) : node.position.y;
     return {
       ...node,
       targetPosition: isHorizontal ? Position.Left : Position.Top,
       sourcePosition: isHorizontal ? Position.Right : Position.Bottom,
-      position: {
-        x: nodeWithPosition.x - nodeWidth / 2,
-        y: nodeWithPosition.y - nodeHeight / 2,
-      },
+      position: { x, y },
     };
   });
 
-  return { nodes: layoutedNodes, edges };
+  return { nodes: layoutedNodes, edges: [...edges] };
 }
 
 // Helper to convert schemas to React Flow structures
@@ -292,8 +291,10 @@ export const useGraphStore = create<GraphState>((set, get) => ({
 
   runDagreLayout: (direction) => {
     const dir = direction || get().layoutDirection;
-    const { nodes, edges } = calculateDagreLayout(get().nodes, get().edges, dir);
-    set({ nodes, edges, layoutDirection: dir });
+    const currentNodes = get().nodes.map((n) => ({ ...n, position: { ...n.position } }));
+    const currentEdges = get().edges.map((e) => ({ ...e }));
+    const { nodes, edges } = calculateDagreLayout(currentNodes, currentEdges, dir);
+    set({ nodes: [...nodes], edges: [...edges], layoutDirection: dir });
   },
 
   runLint: async () => {
