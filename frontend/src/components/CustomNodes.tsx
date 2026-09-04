@@ -11,7 +11,7 @@ import {
   Layers,
   Server,
 } from "lucide-react";
-import { CustomNodeData } from "@/store/graphStore";
+import { CustomNodeData, AppNode } from "@/store/graphStore";
 
 // Node styling theme configurations
 const NODE_THEMES = {
@@ -71,7 +71,7 @@ const NODE_THEMES = {
   },
 };
 
-export const CustomArchitectureNode = memo(({ data, selected }: NodeProps<CustomNodeData>) => {
+export const CustomArchitectureNode = memo(({ data, selected }: NodeProps<AppNode>) => {
   const nodeType = data.type || "service";
   const theme = NODE_THEMES[nodeType] || NODE_THEMES.service;
   const { Icon } = theme;
@@ -173,6 +173,6 @@ export const CustomArchitectureNode = memo(({ data, selected }: NodeProps<Custom
 
 CustomArchitectureNode.displayName = "CustomArchitectureNode";
 
-export const nodeTypes = {
+export const nodeTypes: any = {
   customNode: CustomArchitectureNode,
 };

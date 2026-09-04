@@ -9,6 +9,7 @@ import {
   Connection,
   addEdge,
   MarkerType,
+  Position,
 } from "@xyflow/react";
 import dagre from "dagre";
 import {
@@ -104,8 +105,8 @@ function calculateDagreLayout(
     const nodeWithPosition = dagreGraph.node(node.id);
     return {
       ...node,
-      targetPosition: isHorizontal ? ("left" as const) : ("top" as const),
-      sourcePosition: isHorizontal ? ("right" as const) : ("bottom" as const),
+      targetPosition: isHorizontal ? Position.Left : Position.Top,
+      sourcePosition: isHorizontal ? Position.Right : Position.Bottom,
       position: {
         x: nodeWithPosition.x - nodeWidth / 2,
         y: nodeWithPosition.y - nodeHeight / 2,
